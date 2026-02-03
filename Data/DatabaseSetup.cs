@@ -61,7 +61,7 @@ public class DatabaseSetup
         createDropOffTableCommand.CommandText = @"
             CREATE TABLE IF NOT EXISTS DropOffs (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                PickupId INTEGER NOT NULL,
+                PickupId INTEGER NOT NULL UNIQUE,
                 ReturnDateTime TEXT NOT NULL,
                 FinalMileage INTEGER NOT NULL,
                 FOREIGN KEY(PickupID) REFERENCES Pickups(Id)
