@@ -1,8 +1,6 @@
 # car-rental
 
 TODO 
-- Refactor design of Repository (Rename Data?)
- - Design as repository instead of query/command
 - Implement Rent calculator
   - Switch? or strategy pattern? testing 
 - implement baserates in db
