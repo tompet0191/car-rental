@@ -4,7 +4,7 @@ using Repository;
 using Repository.Queries.Cars;
 
 var dbSetup = new DatabaseSetup();
-dbSetup.Initialize();
+// dbSetup.Initialize();
 
 var cars = new GetAllCarsQuery(dbSetup.GetConnectionString()).Execute();
 
