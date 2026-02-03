@@ -44,6 +44,30 @@ public class DatabaseSetup
             addCars.ExecuteNonQuery();
         }
 
+        var createPickupTableCommand = connection.CreateCommand();
+        createPickupTableCommand.CommandText = @"
+            CREATE TABLE IF NOT EXISTS Pickups (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                BookingNumber TEXT NOT NULL UNIQUE,
+                SocialSecurityNumber TEXT NOT NULL,
+                CarType INTEGER NOT NULL,
+                PickupDateTime TEXT NOT NULL,
+                CurrentMileage INTEGER NOT NULL
+            )
+        ";
+        createPickupTableCommand.ExecuteNonQuery();
+
+        var createDropOffTableCommand = connection.CreateCommand();
+        createDropOffTableCommand.CommandText = @"
+            CREATE TABLE IF NOT EXISTS DropOffs (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                PickupId INTEGER NOT NULL,
+                ReturnDateTime TEXT NOT NULL,
+                FinalMileage INTEGER NOT NULL,
+                FOREIGN KEY(PickupID) REFERENCES Pickups(Id)
+            )
+        ";
+        createDropOffTableCommand.ExecuteNonQuery();
     }
 
     public string GetConnectionString() => _connectionString;
