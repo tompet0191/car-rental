@@ -4,7 +4,7 @@ using Repository;
 using Repository.Repositories;
 
 var dbSetup = new DatabaseSetup();
-// dbSetup.Initialize();
+dbSetup.Initialize();
 
 var repo = new CarRepository(dbSetup.GetConnectionString());
 
@@ -23,3 +23,14 @@ var car3 = repo.GetByRegistrationNumber("ABC1235354");
 Console.WriteLine(car3 is null
     ? "No such car"
     : $"{car3.Id}: {car3.RegistrationNumber}, Type: {car3.Type}, Mileage: {car3.Mileage}");
+
+var repo2 = new RentalRepository(dbSetup.GetConnectionString());
+
+// var success = repo2.RegisterRental("XXX123", car2.Id, "123", car2.Mileage);
+
+repo2.RegisterReturn("XXX123", 2000);
+
+var rental = repo2.GetByBookingNumber("XXX123");
+
+Console.WriteLine(repo2.IsCarCurrentlyRented("ABC123"));
+

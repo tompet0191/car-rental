@@ -17,14 +17,14 @@ public class DatabaseSetup
         connection.Open();
 
         var createTableCommand = connection.CreateCommand();
-        createTableCommand.CommandText = @"
+        createTableCommand.CommandText = """
             CREATE TABLE IF NOT EXISTS Cars (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 RegistrationNumber TEXT NOT NULL UNIQUE,
                 Type INTEGER NOT NULL,
                 Mileage INTEGER NOT NULL DEFAULT 0
             )
-        ";
+        """;
         createTableCommand.ExecuteNonQuery();
 
         var checkCars = connection.CreateCommand();
@@ -34,40 +34,33 @@ public class DatabaseSetup
         if (carCount == 0)
         {
             var addCars = connection.CreateCommand();
-            addCars.CommandText = @"
-                INSERT INTO Cars (RegistrationNumber, Type, Mileage) VALUES 
-                ('ABC123', 1, 1500),
-                ('XYZ789', 2, 4500),
-                ('DEF456', 1, 800),
-                ('GHI012', 3, 1200)
-            ";
+            addCars.CommandText = """
+                INSERT INTO 
+                    Cars (RegistrationNumber, Type, Mileage) 
+                VALUES 
+                    ('ABC123', 1, 1500),
+                    ('XYZ789', 2, 4500),
+                    ('DEF456', 1, 800),
+                    ('GHI012', 3, 1200)
+            """;
             addCars.ExecuteNonQuery();
         }
 
-        var createPickupTableCommand = connection.CreateCommand();
-        createPickupTableCommand.CommandText = @"
-            CREATE TABLE IF NOT EXISTS Pickups (
+		var createRentalTableCommand = connection.CreateCommand();
+        createRentalTableCommand.CommandText = """
+            CREATE TABLE IF NOT EXISTS Rentals (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 BookingNumber TEXT NOT NULL UNIQUE,
                 SocialSecurityNumber TEXT NOT NULL,
-                CarType INTEGER NOT NULL,
-                PickupDateTime TEXT NOT NULL,
-                CurrentMileage INTEGER NOT NULL
+                CarId INTEGER NOT NULL,
+                PickupDateTimeUtc TEXT NOT NULL,
+                StartMileage INTEGER NOT NULL,
+                ReturnDateTimeUtc TEXT NULL,
+                FinalMileage INTEGER NULL,
+                FOREIGN KEY(CarId) REFERENCES Cars(Id)
             )
-        ";
-        createPickupTableCommand.ExecuteNonQuery();
-
-        var createDropOffTableCommand = connection.CreateCommand();
-        createDropOffTableCommand.CommandText = @"
-            CREATE TABLE IF NOT EXISTS DropOffs (
-                Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                PickupId INTEGER NOT NULL UNIQUE,
-                ReturnDateTime TEXT NOT NULL,
-                FinalMileage INTEGER NOT NULL,
-                FOREIGN KEY(PickupID) REFERENCES Pickups(Id)
-            )
-        ";
-        createDropOffTableCommand.ExecuteNonQuery();
+        """;
+        createRentalTableCommand.ExecuteNonQuery();
     }
 
     public string GetConnectionString() => _connectionString;
