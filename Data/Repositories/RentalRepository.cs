@@ -1,9 +1,10 @@
+using Domain.Interfaces;
+using Domain.Models;
 using Microsoft.Data.Sqlite;
-using Repository.Models;
 
 namespace Repository.Repositories;
 
-public class RentalRepository
+public class RentalRepository : IRentalRepository
 {
     private readonly string _connectionString;
 
@@ -26,7 +27,7 @@ public class RentalRepository
 
         command.CommandText = """
             INSERT INTO
-                Rentals (BookingNumber, SocialSecurityNumber, CarId, PickupDateTimeUtc, StartMileage )
+                Rentals (BookingNumber, SocialSecurityNumber, CarId, PickupDateTimeUtc, StartKm )
                 VALUES  ($bookingNumber, $ssno, $carId, $pickup, $mileage)
         """;
 
@@ -47,7 +48,7 @@ public class RentalRepository
             UPDATE
                 Rentals
             SET
-                FinalMileage = $finalMileage,
+                FinalKm = $finalMileage,
                 ReturnDateTimeUtc = $return
             WHERE
                 BookingNumber = $bookingNumber
@@ -56,22 +57,20 @@ public class RentalRepository
         return command.ExecuteNonQuery() > 0;
     }
 
-    public bool IsCarCurrentlyRented(string registrationNumber)
+    public bool IsCarCurrentlyRented(int carId)
     {
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
 
         var command = connection.CreateCommand();
-        command.Parameters.AddWithValue("$regNumber", registrationNumber);
+        command.Parameters.AddWithValue("$carId", carId);
         command.CommandText = """
             SELECT 
                 COUNT(*)
             FROM 
                 Rentals r
-                JOIN Cars c ON 
-                    r.CarId = c.Id
             WHERE 
-                c.RegistrationNumber = $regNumber AND
+                r.CarId = $carId AND
                 r.ReturnDateTimeUtc IS NULL
         """;
 
@@ -93,9 +92,9 @@ public class RentalRepository
                 SocialSecurityNumber, 
                 CarId, 
                 PickupDateTimeUtc, 
-                StartMileage, 
+                StartKm, 
                 ReturnDateTimeUtc, 
-                FinalMileage
+                FinalKm
             FROM 
                 Rentals
             WHERE 
@@ -112,9 +111,9 @@ public class RentalRepository
                 SocialSecurityNumber = reader.GetString(2),
                 CarId = reader.GetInt32(3),
                 PickupDateTimeUtc = DateTime.Parse(reader.GetString(4)),
-                StartMileage = reader.GetInt32(5),
+                StartKm = reader.GetInt32(5),
                 ReturnDateTimeUtc = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)),
-                FinalMileage = reader.IsDBNull(7) ? null : reader.GetInt32(7)
+                FinalKm = reader.IsDBNull(7) ? null : reader.GetInt32(7)
             };
         }
 

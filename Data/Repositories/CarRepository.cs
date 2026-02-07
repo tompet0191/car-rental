@@ -1,9 +1,10 @@
+using Domain.Interfaces;
+using Domain.Models;
 using Microsoft.Data.Sqlite;
-using Repository.Models;
 
 namespace Repository.Repositories;
 
-public class CarRepository
+public class CarRepository : ICarRepository
 {
     private readonly string _connectionString;
 
@@ -47,6 +48,27 @@ public class CarRepository
         return null;
     }
 
+    public bool UpdateMileage(int carId, int newMileage)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.Parameters.AddWithValue("$id", carId);
+        command.Parameters.AddWithValue("$mileage", newMileage);
+
+        command.CommandText = """
+            UPDATE 
+                Cars
+            SET 
+                Mileage = $mileage
+            WHERE 
+                Id = $id
+        """;
+
+        return command.ExecuteNonQuery() > 0;
+    }
+
     public IEnumerable<Car> GetAll()
     {
         using var connection = new SqliteConnection(_connectionString);
@@ -54,14 +76,14 @@ public class CarRepository
 
         var command = connection.CreateCommand();
         command.CommandText = """
-                                  SELECT 
-                                      Id, 
-                                      RegistrationNumber, 
-                                      Type, 
-                                      Mileage 
-                                  FROM 
-                                      Cars
-                              """;
+          SELECT 
+              Id, 
+              RegistrationNumber, 
+              Type, 
+              Mileage 
+          FROM 
+              Cars
+        """;
 
         using var reader = command.ExecuteReader();
         var cars = new List<Car>();
