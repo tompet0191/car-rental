@@ -54,14 +54,25 @@ public class DatabaseSetup
                 SocialSecurityNumber TEXT NOT NULL,
                 CarId INTEGER NOT NULL,
                 PickupDateTimeUtc TEXT NOT NULL,
-                StartMileage INTEGER NOT NULL,
+                StartKm INTEGER NOT NULL,
                 ReturnDateTimeUtc TEXT NULL,
-                FinalMileage INTEGER NULL,
+                FinalKm INTEGER NULL,
                 FOREIGN KEY(CarId) REFERENCES Cars(Id)
             )
         """;
         createRentalTableCommand.ExecuteNonQuery();
+
+        var createRateConfigTableCommand = connection.CreateCommand();
+        createRateConfigTableCommand.CommandText = """
+            CREATE TABLE IF NOT EXISTS RateConfig (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                BaseDayRental DECIMAL NOT NULL,
+                PricePerKm DECIMAL NOT NULL,
+                ApplyDate TEXT NOT NULL UNIQUE
+            )
+        """;
+        createRateConfigTableCommand.ExecuteNonQuery();
     }
 
-    public string GetConnectionString() => _connectionString;
-}
+       public string GetConnectionString() => _connectionString;
+   }
