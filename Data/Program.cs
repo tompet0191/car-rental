@@ -28,9 +28,11 @@ var repo2 = new RentalRepository(dbSetup.GetConnectionString());
 
 // var success = repo2.RegisterRental("XXX123", car2.Id, "123", car2.Mileage);
 
-repo2.RegisterReturn("XXX123", 2000);
+// repo2.RegisterReturn("XXX123", 2000);
 
 var rental = repo2.GetByBookingNumber("XXX123");
 
-Console.WriteLine(repo2.IsCarCurrentlyRented("ABC123"));
+repo.UpdateMileage(car2.Id, 2000);
+
+Console.WriteLine(repo2.IsCarCurrentlyRented(car2.Id));
 
