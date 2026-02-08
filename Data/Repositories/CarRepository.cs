@@ -2,7 +2,7 @@ using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.Data.Sqlite;
 
-namespace Repository.Repositories;
+namespace Data.Repositories;
 
 public class CarRepository : ICarRepository
 {
@@ -13,10 +13,10 @@ public class CarRepository : ICarRepository
         _connectionString = connectionString;
     }
 
-    public Car? GetByRegistrationNumber(string registrationNumber)
+    public async Task<Car?> GetByRegistrationNumber(string registrationNumber)
     {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         command.Parameters.AddWithValue("$regNumber", registrationNumber);
@@ -32,7 +32,7 @@ public class CarRepository : ICarRepository
                 RegistrationNumber = $regNumber
         """;
 
-        using var reader = command.ExecuteReader();
+        using var reader = await command.ExecuteReaderAsync();
 
         if (reader.Read())
         {
@@ -48,10 +48,10 @@ public class CarRepository : ICarRepository
         return null;
     }
 
-    public Car GetById(int carId)
+    public async Task<Car?> GetById(int carId)
     {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         command.Parameters.AddWithValue("$carId", carId);
@@ -67,7 +67,7 @@ public class CarRepository : ICarRepository
                 Id = $carId
         """;
 
-        using var reader = command.ExecuteReader();
+        using var reader = await command.ExecuteReaderAsync();
 
         if (reader.Read())
         {
@@ -83,10 +83,10 @@ public class CarRepository : ICarRepository
         return null;
     }
 
-    public bool UpdateMileage(int carId, int newMileage)
+    public async Task<bool> UpdateMileage(int carId, int newMileage)
     {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         command.Parameters.AddWithValue("$id", carId);
@@ -101,13 +101,13 @@ public class CarRepository : ICarRepository
                 Id = $id
         """;
 
-        return command.ExecuteNonQuery() > 0;
+        return await command.ExecuteNonQueryAsync() > 0;
     }
 
-    public IEnumerable<Car> GetAll()
+    public async Task<IEnumerable<Car>> GetAll()
     {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         command.CommandText = """
@@ -120,7 +120,7 @@ public class CarRepository : ICarRepository
               Cars
         """;
 
-        using var reader = command.ExecuteReader();
+        using var reader = await command.ExecuteReaderAsync();
         var cars = new List<Car>();
 
         while (reader.Read())

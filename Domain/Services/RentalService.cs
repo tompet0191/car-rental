@@ -20,21 +20,21 @@ public class RentalService
         _costCalculator = costCalculator;
     }
 
-    public RegisterRentalResponse RegisterRental(string bookingNumber, string regNumber, string ssno)
+    public async Task<RegisterRentalResponse> RegisterRental(string bookingNumber, string regNumber, string ssno)
     {
-        var car = _carRepo.GetByRegistrationNumber(regNumber);
+        var car = await _carRepo.GetByRegistrationNumber(regNumber);
         if (car is null)
         {
             throw new InvalidOperationException($"Car with registration {regNumber} not found");
         }
 
-        if (_rentalRepo.IsCarCurrentlyRented(car.Id))
+        if (await _rentalRepo.IsCarCurrentlyRented(car.Id))
         {
             throw new InvalidOperationException($"Car {regNumber} is already rented");
         }
 
         var pickupTime = DateTime.UtcNow;
-        _rentalRepo.RegisterRental(bookingNumber, car.Id, ssno, car.Mileage, pickupTime);
+        await _rentalRepo.RegisterRental(bookingNumber, car.Id, ssno, car.Mileage, pickupTime);
 
         return new RegisterRentalResponse
         {
@@ -50,9 +50,9 @@ public class RentalService
         };
     }
 
-    public RentalCompletedResponse RegisterDropoff(string bookingNumber, int finalMileage)
+    public async Task<RentalCompletedResponse> RegisterDropoff(string bookingNumber, int finalMileage)
     {
-        var rental = _rentalRepo.GetByBookingNumber(bookingNumber);
+        var rental = await _rentalRepo.GetByBookingNumber(bookingNumber);
         if (rental is null)
         {
             throw new InvalidOperationException($"Rental with booking number {bookingNumber} not found");
@@ -63,15 +63,15 @@ public class RentalService
             throw new InvalidOperationException($"Rental is already returned");
         }
 
-        var car = _carRepo.GetById(rental.CarId);
+        var car = await _carRepo.GetById(rental.CarId);
         if (car is null)
         {
             throw new InvalidOperationException($"Car not found");
         }
 
         var returnDate = DateTime.UtcNow;
-        _rentalRepo.RegisterReturn(bookingNumber, finalMileage, returnDate);
-        _carRepo.UpdateMileage(car.Id, finalMileage);
+        await _rentalRepo.RegisterReturn(bookingNumber, finalMileage, returnDate);
+        await _carRepo.UpdateMileage(car.Id, finalMileage);
         rental.ReturnDateTimeUtc = returnDate;
         rental.FinalKm = finalMileage;
 

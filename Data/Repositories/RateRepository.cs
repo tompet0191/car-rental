@@ -2,7 +2,7 @@ using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.Data.Sqlite;
 
-namespace Repository.Repositories;
+namespace Data.Repositories;
 
 public class RateRepository : IRateRepository
 {

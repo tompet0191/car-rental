@@ -2,7 +2,7 @@ using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.Data.Sqlite;
 
-namespace Repository.Repositories;
+namespace Data.Repositories;
 
 public class RentalRepository : IRentalRepository
 {
@@ -13,10 +13,10 @@ public class RentalRepository : IRentalRepository
         _connectionString = connectionString;
     }
 
-    public bool RegisterRental(string bookingNumber, int carId, string ssno, int mileage, DateTime? pickupDateTimeUtc = null)
+    public async Task<bool> RegisterRental(string bookingNumber, int carId, string ssno, int mileage, DateTime? pickupDateTimeUtc = null)
     {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         command.Parameters.AddWithValue("$bookingNumber", bookingNumber);
@@ -31,13 +31,13 @@ public class RentalRepository : IRentalRepository
                 VALUES  ($bookingNumber, $ssno, $carId, $pickup, $mileage)
         """;
 
-        return command.ExecuteNonQuery() > 0;
+        return await command.ExecuteNonQueryAsync() > 0;
     }
 
-    public bool RegisterReturn(string bookingNumber, int finalMileage, DateTime? returnDateTimeUtc = null)
+    public async Task<bool> RegisterReturn(string bookingNumber, int finalMileage, DateTime? returnDateTimeUtc = null)
     {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         command.Parameters.AddWithValue("$bookingNumber", bookingNumber);
@@ -54,10 +54,10 @@ public class RentalRepository : IRentalRepository
                 BookingNumber = $bookingNumber
         """;
 
-        return command.ExecuteNonQuery() > 0;
+        return await command.ExecuteNonQueryAsync() > 0;
     }
 
-    public bool IsCarCurrentlyRented(int carId)
+    public async Task<bool> IsCarCurrentlyRented(int carId)
     {
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
@@ -74,14 +74,14 @@ public class RentalRepository : IRentalRepository
                 r.ReturnDateTimeUtc IS NULL
         """;
 
-        var count = (long)command.ExecuteScalar()!;
+        var count = (long)(await command.ExecuteScalarAsync())!;
         return count > 0;
     }
 
-    public Rental? GetByBookingNumber(string bookingNumber)
+    public async Task<Rental?> GetByBookingNumber(string bookingNumber)
     {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         command.Parameters.AddWithValue("$bookingNumber", bookingNumber);
@@ -101,7 +101,7 @@ public class RentalRepository : IRentalRepository
                 BookingNumber = $bookingNumber
         """;
 
-        using var reader = command.ExecuteReader();
+        using var reader = await command.ExecuteReaderAsync();
         if (reader.Read())
         {
             return new Rental

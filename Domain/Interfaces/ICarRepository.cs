@@ -4,7 +4,7 @@ namespace Domain.Interfaces;
 
 public interface ICarRepository
 {
-    Car? GetByRegistrationNumber(string registrationNumber);
-    Car? GetById(int rentalCarId);
-    bool UpdateMileage(int carId, int newMileage);
+    Task<Car?> GetByRegistrationNumber(string registrationNumber);
+    Task<Car?> GetById(int rentalCarId);
+    Task<bool> UpdateMileage(int carId, int newMileage);
 }

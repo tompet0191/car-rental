@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace Repository;
+namespace Data;
 
 public class DatabaseSetup
 {

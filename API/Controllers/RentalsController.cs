@@ -1,6 +1,6 @@
+using API.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Services;
-using Domain.Models.DTOs;
 
 namespace API.Controllers;
 
@@ -16,11 +16,11 @@ public class RentalsController : ControllerBase
     }
 
     [HttpPost("register")]
-    public ActionResult<RegisterRentalResponse> RegisterRental([FromBody] RegisterRentalRequest request)
+    public async Task<IActionResult> RegisterRental([FromBody] RegisterRentalRequest request)
     {
         try
         {
-            var response = _rentalService.RegisterRental(
+            var response = await _rentalService.RegisterRental(
                 request.BookingNumber,
                 request.RegNumber,
                 request.Ssno);
@@ -34,11 +34,11 @@ public class RentalsController : ControllerBase
     }
 
     [HttpPost("return")]
-    public ActionResult<RegisterRentalResponse> RegisterReturn([FromBody] RegisterReturnRequest request)
+    public async Task<IActionResult> RegisterReturn([FromBody] RegisterReturnRequest request)
     {
         try
         {
-            var response = _rentalService.RegisterDropoff(
+            var response = await _rentalService.RegisterDropoff(
                 request.BookingNumber,
                 request.FinalMileage
             );
@@ -51,13 +51,3 @@ public class RentalsController : ControllerBase
         }
     }
 }
-
-public record RegisterRentalRequest(
-    string BookingNumber,
-    string RegNumber,
-    string Ssno
-);
-public record RegisterReturnRequest(
-    string BookingNumber,
-    int FinalMileage
-);
