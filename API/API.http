@@ -1,0 +1,18 @@
+### Register Rental
+POST http://localhost:5018/api/rentals/register
+Content-Type: application/json
+
+{
+  "bookingNumber": "aaa113",
+  "regNumber": "ABC123",
+  "ssno": "123456"
+}
+
+### Return Rental
+POST http://localhost:5018/api/rentals/return
+Content-Type: application/json
+
+{
+  "bookingNumber": "aaa113",
+  "finalMileage": 2500
+}
