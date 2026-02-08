@@ -22,7 +22,7 @@ public class RentalRepository : IRentalRepository
         command.Parameters.AddWithValue("$bookingNumber", bookingNumber);
         command.Parameters.AddWithValue("$carId", carId);
         command.Parameters.AddWithValue("$ssno", ssno);
-        command.Parameters.AddWithValue("$pickup", (pickupDateTimeUtc ?? DateTime.UtcNow).ToString("o")); // TODO isoformat set constant
+        command.Parameters.AddWithValue("$pickup", pickupDateTimeUtc ?? DateTime.UtcNow);
         command.Parameters.AddWithValue("$mileage", mileage);
 
         command.CommandText = """
@@ -42,7 +42,7 @@ public class RentalRepository : IRentalRepository
         var command = connection.CreateCommand();
         command.Parameters.AddWithValue("$bookingNumber", bookingNumber);
         command.Parameters.AddWithValue("$finalMileage", finalMileage);
-        command.Parameters.AddWithValue("$return", returnDateTimeUtc ?? DateTime.UtcNow); // TODO isoformat set constant
+        command.Parameters.AddWithValue("$return", returnDateTimeUtc ?? DateTime.UtcNow);
 
         command.CommandText = """
             UPDATE

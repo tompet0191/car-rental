@@ -1,5 +1,6 @@
 using Domain.Calculators;
 using Domain.Interfaces;
+using Domain.Models.DTOs;
 
 namespace Domain.Services;
 
@@ -19,7 +20,7 @@ public class RentalService
         _costCalculator = costCalculator;
     }
 
-    public bool RegisterRental(string bookingNumber, string regNumber, string ssno)
+    public RegisterRentalResponse RegisterRental(string bookingNumber, string regNumber, string ssno)
     {
         var car = _carRepo.GetByRegistrationNumber(regNumber);
         if (car is null)
@@ -32,10 +33,24 @@ public class RentalService
             throw new InvalidOperationException($"Car {regNumber} is already rented");
         }
 
-        return _rentalRepo.RegisterRental(bookingNumber, car.Id, ssno, car.Mileage);
+        var pickupTime = DateTime.UtcNow;
+        _rentalRepo.RegisterRental(bookingNumber, car.Id, ssno, car.Mileage, pickupTime);
+
+        return new RegisterRentalResponse
+        {
+            Rental = new RentalDetails
+            {
+                BookingNumber = bookingNumber,
+                CarType = car.Type.ToString(),
+                PickupDate = pickupTime,
+                RegistrationNumber = car.RegistrationNumber,
+                SocialSecurityNuber = ssno,
+                StartKm = car.Mileage
+            }
+        };
     }
 
-    public decimal RegisterDropoff(string bookingNumber, int finalMileage)
+    public RentalCompletedResponse RegisterDropoff(string bookingNumber, int finalMileage)
     {
         var rental = _rentalRepo.GetByBookingNumber(bookingNumber);
         if (rental is null)
@@ -43,22 +58,41 @@ public class RentalService
             throw new InvalidOperationException($"Rental with booking number {bookingNumber} not found");
         }
 
-        if (rental.ReturnDateTimeUtc.HasValue)
+        if (!rental.IsActive)
         {
             throw new InvalidOperationException($"Rental is already returned");
         }
 
-        var car = _carRepo.GetById(rental.CarId); // TODO implement
+        var car = _carRepo.GetById(rental.CarId);
         if (car is null)
         {
             throw new InvalidOperationException($"Car not found");
         }
 
-        _rentalRepo.RegisterReturn(bookingNumber, finalMileage, DateTime.UtcNow);
+        var returnDate = DateTime.UtcNow;
+        _rentalRepo.RegisterReturn(bookingNumber, finalMileage, returnDate);
         _carRepo.UpdateMileage(car.Id, finalMileage);
+        rental.ReturnDateTimeUtc = returnDate;
+        rental.FinalKm = finalMileage;
 
-        var rentalCost = _costCalculator.Calculate(rental, car, finalMileage);
+        var rentalCost = _costCalculator.Calculate(rental, car);
 
-        return rentalCost;
+        return new RentalCompletedResponse
+        {
+            TotalCost = rentalCost,
+            DaysRented = rental.DaysRented.Value,
+            KilometersDriven = rental.KmDriven.Value,
+            Rental = new CompletedRentalDetails
+            {
+                BookingNumber = rental.BookingNumber,
+                RegistrationNumber = car.RegistrationNumber,
+                SocialSecurityNumber = rental.SocialSecurityNumber,
+                CarType = car.Type.ToString(),
+                PickupDate = rental.PickupDateTimeUtc,
+                ReturnDate = rental.ReturnDateTimeUtc.Value,
+                StartKm = rental.StartKm,
+                FinalKm = rental.FinalKm.Value
+            }
+        };
     }
 }

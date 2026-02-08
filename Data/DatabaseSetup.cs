@@ -72,6 +72,22 @@ public class DatabaseSetup
             )
         """;
         createRateConfigTableCommand.ExecuteNonQuery();
+
+        var checkRates = connection.CreateCommand();
+        checkCars.CommandText = "SELECT COUNT(*) FROM RateConfig";
+        var ratesCount = (long)(checkCars.ExecuteScalar() ?? 0);
+
+        if (ratesCount == 0)
+        {
+            var addRate = connection.CreateCommand();
+            addRate.CommandText = """
+                                      INSERT INTO 
+                                          RateConfig (BaseDayRental, PricePerKm, ApplyDate) 
+                                      VALUES 
+                                          (500, 2.5, '2026-01-01')
+                                  """;
+            addRate.ExecuteNonQuery();
+        }
     }
 
        public string GetConnectionString() => _connectionString;
