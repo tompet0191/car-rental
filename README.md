@@ -22,11 +22,11 @@ Run `dotnet test` from solution root
 - **Rentals** - Active/completed rentals with pickup/return dates and mileage
 - **RateConfig** - Configurable base rates with effective dates
 
-Assumptions:
+## Assumptions:
 - A car's type is static and does not change
 - A rental can at minimum be rented 1 day (same day returns will be counted as 1 day)
 
-Design choices:
+## Design choices:
 - Started with a CQRS structure in the repo, but ultimately decided that the simple traditional repo pattern would be sufficient in this case.
 - Initially modelled the db as two tables representing pickup/dropoff, but decided one table was simpler and made more sense in this case. (No need to track multiple return attempts for example)
 - Implemented the base rates as a table in db, with an applydate. Advantage is that it can be changed without deploying the app, and because of the apply date changes in rates can be scheduled in advance.
