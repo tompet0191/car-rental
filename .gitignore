@@ -22,7 +22,13 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+
+# Rider 
 .idea/
+*.user
+
+# databases
+*.db
 
 # .NET Core
 project.lock.json
